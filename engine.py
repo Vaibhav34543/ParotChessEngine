@@ -109,13 +109,37 @@ def CheckForCheck(king, pieceClass):
                 Log(f"CHECK FOUND: TRUE by position {[kingPos[0]+i, kingPos[1]+i]}")
                 king.color = color.red
                 c = 1
+    if c == 1:
+        king.color = color.red
+    else:
+        king.color = color.white
     
-    AllNearMovement = [[-1, 1],[0, 1],[1, 1],[-1, 0],[1, 0],[-1, -1],[0, -1],[1, -1],[-1, 2],[1, 2],[2, 1],[2, -1],[1, -2],[-1, -2],[-2, -1],[-2, 1]]
-    for i in AllNearMovement:
+    AllNearFront = [[-1, 1],[1, 1]]
+    AllNearDown = [[-1, -1],[1, -1]]
+    AllKnightMovement = [[-1, 2],[1, 2],[2, 1],[2, -1],[1, -2],[-1, -2],[-2, -1],[-2, 1]]
+    if kingClass == "w":
+        for i in AllNearFront:
+            if CheckPosCollide([int(kingPos[0] + i[0]), int(kingPos[1] + i[1])], kingClass):
+                continue
+            if checkOppCollisions([int(kingPos[0] + i[0]), int(kingPos[1] + i[1])], kingClass):
+                if GetCheckerName([int(kingPos[0] + i[0]), int(kingPos[1] + i[1])]) in ["pawn"]:
+                    Log(f"CHECK FOUND: TRUE by position {[int(kingPos[0] + i[0]), int(kingPos[1] + i[1])]}")
+                    king.color = color.red
+                    c = 1
+    else:
+        for i in AllNearDown:
+            if CheckPosCollide([int(kingPos[0] + i[0]), int(kingPos[1] + i[1])], kingClass):
+                continue
+            if checkOppCollisions([int(kingPos[0] + i[0]), int(kingPos[1] + i[1])], kingClass):
+                if GetCheckerName([int(kingPos[0] + i[0]), int(kingPos[1] + i[1])]) in ["pawn"]:
+                    Log(f"CHECK FOUND: TRUE by position {[int(kingPos[0] + i[0]), int(kingPos[1] + i[1])]}")
+                    king.color = color.red
+                    c = 1
+    for i in AllKnightMovement:
         if CheckPosCollide([int(kingPos[0] + i[0]), int(kingPos[1] + i[1])], kingClass):
             continue
         if checkOppCollisions([int(kingPos[0] + i[0]), int(kingPos[1] + i[1])], kingClass):
-            if GetCheckerName([int(kingPos[0] + i[0]), int(kingPos[1] + i[1])]) in ["pawn", "knight"]:
+            if GetCheckerName([int(kingPos[0] + i[0]), int(kingPos[1] + i[1])]) in ["knight"]:
                 Log(f"CHECK FOUND: TRUE by position {[int(kingPos[0] + i[0]), int(kingPos[1] + i[1])]}")
                 king.color = color.red
                 c = 1
@@ -140,9 +164,11 @@ def ChangeTurn(piece):
         Log("---------------------------TURN-CHANGE----------------------------")
         turn = 1
         CheckForCheck(GetKing("b"), "b")
+        CheckForCheck(GetKing("w"), "w")
     else: 
         Log("---------------------------TURN-CHANGE----------------------------")
         turn = 0
+        CheckForCheck(GetKing("b"), "b")
         CheckForCheck(GetKing("w"), "w")
 
 # Debug
@@ -320,6 +346,7 @@ def captureBug(pos, pieceClass):
         if [int(pos[0]), int(pos[1])] in Positions[1]:
             return True
     else:
+        Log(f"\t\t\t\t\t{[int(pos[0]), int(pos[1])]} IN {Positions[0]}")
         if [int(pos[0]), int(pos[1])] in Positions[0]:
             return True
 
@@ -606,30 +633,48 @@ class Pawn(Button):
                 if CheckTurn(self):
                     x = Entity(parent = self, origin = (0, 0, 0))
                     if str(self.texture) == "pawnB.png":
-                        if self.y == 6:
-                            if CheckPosCollide([self.x, self.y - 1], returnClass(self)) != True:
-                                if captureBug([self.x, self.y - 1], returnClass(self)) != True:
-                                    Hover(0, -1, x)
-                                if CheckPosCollide([self.x, self.y - 2], returnClass(self)) != True:
-                                    if captureBug([self.x, self.y - 2], returnClass(self)) != True:
-                                        Hover(0, -2, x)
+                        for i in range(3):
+                            if i == 2 and self.y != 6:
+                                break
+                            move = [int(self.x), int(self.y - i)]
+                            if CheckPosCollide(move, returnClass(self)) != True:
+                                if captureBug(move, returnClass(self)) != True:
+                                    Hover(0, -i, x)
+                                else:
+                                    break
+                    else:
+                        for i in range(3):
+                            if i == 2 and self.y != 1:
+                                break
+                            move = [int(self.x), int(self.y + i)]
+                            if CheckPosCollide(move, returnClass(self)) != True:
+                                if captureBug(move, returnClass(self)) != True:
+                                    Hover(0, i, x)
+                                else:
+                                    break
                         
-                        else:
-                            if CheckPosCollide([self.x, self.y - 1], returnClass(self)) != True:
-                                if captureBug([self.x, self.y - 1], returnClass(self)) != True:
-                                    Hover(0, -1, x)
-                    elif str(self.texture) == "pawnW.png":
-                        if self.y == 1:
-                            if CheckPosCollide([self.x, self.y + 1], returnClass(self)) != True:
-                                if captureBug([self.x, self.y + 1], returnClass(self)) != True:
-                                    Hover(0, 1, x)
-                                if CheckPosCollide([self.x, self.y + 2], returnClass(self)) != True:
-                                    if captureBug([self.x, self.y + 2], returnClass(self)) != True:
-                                        Hover(0, 2, x)
+                        # if self.y == 6:
+                        #     if CheckPosCollide([self.x, self.y - 1], returnClass(self)) != True:
+                        #         if captureBug([self.x, self.y - 1], returnClass(self)) != True:
+                        #             Hover(0, -1, x)
+                        #         if CheckPosCollide([self.x, self.y - 2], returnClass(self)) != True:
+                        #             if captureBug([self.x, self.y - 2], returnClass(self)) != True:
+                        #                 Hover(0, -2, x)
                         
-                        elif CheckPosCollide([self.x, self.y + 1], returnClass(self)) != True:
-                            if captureBug([self.x, self.y + 1], returnClass(self)) != True:
-                                Hover(0, 1, x)
+                        # else:
+                        #     if CheckPosCollide([self.x, self.y - 1], returnClass(self)) != True:
+                        #         if captureBug([self.x, self.y - 1], returnClass(self)) != True:
+                        #             Hover(0, -1, x)
+                            # if CheckPosCollide([self.x, self.y + 1], returnClass(self)) != True:
+                            #     if captureBug([self.x, self.y + 1], returnClass(self)) != True:
+                            #         Hover(0, 1, x)
+                            #     if CheckPosCollide([self.x, self.y + 2], returnClass(self)) != True:
+                            #         if captureBug([self.x, self.y + 2], returnClass(self)) != True:
+                            #             Hover(0, 2, x)
+                        
+                        # elif CheckPosCollide([self.x, self.y + 1], returnClass(self)) != True:
+                        #     if captureBug([self.x, self.y + 1], returnClass(self)) != True:
+                        #         Hover(0, 1, x)
                     PawnCollisions([int(self.x), int(self.y)], returnClass(self), x)
 
 
@@ -639,7 +684,6 @@ for i in range(0, 8):
     Pawn(i, 1, 'pawnW')
 for i in range(0, 8):
     Pawn(i, 6, 'pawnB')
-Pawn(3, 6, 'pawnB')
 k = King(4, 0, 'kingW')
 kb = King(4, 7, 'kingB')
 q = Queen(3, 0, 'queenW')
@@ -656,6 +700,7 @@ r = Rook(0, 0, 'rookW')
 rb = Rook(0, 7, 'rookB')
 r2 = Rook(7, 0, 'rookW')
 r2b = Rook(7, 7, 'rookB')
+
 
 # aligning camera with board
 cam = EditorCamera()
