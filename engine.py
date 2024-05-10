@@ -1,5 +1,35 @@
 from ursina import *
 
+turn = 0        # 0 - White, 1 - Black
+
+
+# Checks if it is white's turn or black's
+def CheckTurn(piece):
+    if returnClass(piece) == "w" and turn == 0:
+        return True
+    elif returnClass(piece) == "w" and turn == 1:
+        return False
+    elif returnClass(piece) == "b" and turn == 1:
+        return True
+    elif returnClass(piece) == "b" and turn == 0:
+        return False
+
+# Change Turns
+def ChangeTurn(piece):
+    global turn
+    if returnClass(piece) == "w":
+        turn = 1
+    else: turn = 0
+
+# Debug
+def Log(data):
+    with open('ChessLog.txt', 'a') as file:
+        file.write(data+"\n")
+
+Log("==================================================================")
+Log("==================================================================")
+Log("==================================================================")
+
 # Boredered Square Window
 app = Ursina(borderless=False)
 window.size = (800, 800)
@@ -16,10 +46,34 @@ def returnClass(piece):
 
 # Deletes the enemy collided sprite
 def deleteCollidedOpp(pos, pieceClass):
-    for i in scene.entities:
-        if [int(i.x), int(i.y)] == pos:
-            if returnClass(i) != returnClass(pieceClass):
-                destroy(i)
+    if returnClass(pieceClass) == "w":
+        Log("deleteCollidedOpp CALLED: TRUE")
+        for i in scene.entities:
+            Log(f"deleteCollidedOpp search for {pos} in {i.position}")
+            if [int(i.x), int(i.y)] == pos:
+                Log("deleteCollidedOpp POSITIONS MATCHED: TRUE")
+                if returnClass(i) != returnClass(pieceClass):
+                    Log(f"Removing item from {Positions[1]}")
+                    Log(f'Position to delete: [{int(i.x)},{int(i.y)}]')
+                    Log("Destroying matched Entity")
+                    Positions[1].remove([int(i.x), int(i.y)])
+                    Log(f"New Positions Data: {Positions}")
+                    destroy(i)
+                    break
+    else:
+        Log("deleteCollidedOpp CALLED: TRUE")
+        for i in scene.entities:
+            Log(f"deleteCollidedOpp search for {pos} in {i.position}")
+            if [int(i.x), int(i.y)] == pos:
+                Log("deleteCollidedOpp POSITIONS MATCHED: TRUE")
+                if returnClass(i) != returnClass(pieceClass):
+                    Log(f"Removing item from {Positions[0]}")
+                    Log(f'Position to delete: [{int(i.x)},{int(i.y)}]')
+                    Log("Destroying matched Entity")
+                    Positions[0].remove([int(i.x), int(i.y)])
+                    Log(f"New Positions Data: {Positions}")
+                    destroy(i)
+                    break
 
 
 # Checks if the opponent positions collide
@@ -27,15 +81,15 @@ def deleteCollidedOpp(pos, pieceClass):
 # the white and black class positions
 def checkOppCollisions(move, pieceClass):
     if pieceClass == "w":
-        for i in Positions[1]:
-            if move == i:
-                return True
-            else: return False
+        if move in Positions[1]:
+            Log(f"{move} FOUND IN {Positions[1]}")
+            return True
+        else: return False
     else:
-        for i in Positions[0]:
-            if move == i:
-                return True
-            else: return False
+        if move in Positions[0]:
+            Log(f"{move} FOUND IN {Positions[0]}")
+            return True
+        else: return False
 
 
 
@@ -62,18 +116,17 @@ def destroyHovers():
 
 # Checks if a piece collides with its own class
 def CheckPosCollide(pos, pieceClass):
+    pos = [int(pos[0]), int(pos[1])]
     if pieceClass == "w":
-        for i in Positions[0]:
-            if i == pos:
-                return True
-            else:
-                return False
+        if pos in Positions[0]:
+            Log(f"Checking {pos} in {Positions[0]}")
+            return True
+        else: return False
     else:
-        for i in Positions[1]:
-            if i == pos:
-                return True
-            else:
-                return False
+        if pos in Positions[1]:
+            Log(f"Checking {pos} in {Positions[1]}")
+            return True
+        else: return False
 
 # Creates hovers for movements on clicking
 # any of the hovers the piece is moved to that hovers location
@@ -90,6 +143,7 @@ class Hover(Button):
     def input(self, key):
         if self.hovered:
             if key == "left mouse down":
+                Log(f"Positions: {Positions}")
                 old_move = [int(self.parent.parent.x), int(self.parent.parent.y)]
                 new_move = [int(self.parent.parent.x + self.x), int(self.parent.parent.y + self.z)]
                 # Checks if the new move collides with opponents 
@@ -103,6 +157,9 @@ class Hover(Button):
                 
                 # Destroys all hovers at the end after clicking
                 destroy(self.parent)
+                ChangeTurn(self.parent.parent)
+                Log(f"Current Turn State: {turn}")
+
 
 # Creates the board
 class Board(Button):
@@ -227,28 +284,31 @@ class King(Button):
             Positions[1].append([x, y])
 
     def input(self, keys):
-        if self.hovered:
-            if keys == "left mouse down":
-                # c[] simply consists all values 
-                # that when passed in hover function
-                # checks all 8 squares around the king
-                x = Entity(parent = self, origin = (0, 0, 0))
-                c = [[0, 1], [1, 1], [-1, 1], [1, 0], [-1, 0], [-1, -1], [0, -1], [1, -1]]
-                for i in c:
-                    if CheckPosCollide([self.x + i[0], self.y + i[1]], returnClass(self)) != True:
-                        if self.y + i[1] < 0:
-                            continue
-                        if self.x + i[0] < 0:
-                            continue
-                        if self.y + i[1] > 7:
-                            continue
-                        if self.x + i[0] > 7:
-                            continue
-                        else:
-                            Hover(i[0], i[1], x)
-                if x.hovered:
-                    if keys == "left mouse down":
-                       destroy(x)
+        if CheckTurn(self):
+            if self.hovered:
+                if keys == "left mouse down":
+                    Log(f"King Clicked: Positions - {Positions}")
+                    Log(f"King Position: {self.position}")
+                    # c[] simply consists all values 
+                    # that when passed in hover function
+                    # checks all 8 squares around the king
+                    x = Entity(parent = self, origin = (0, 0, 0))
+                    c = [[0, 1], [1, 1], [-1, 1], [1, 0], [-1, 0], [-1, -1], [0, -1], [1, -1]]
+                    for i in c:
+                        if CheckPosCollide([self.x + i[0], self.y + i[1]], returnClass(self)) != True:
+                            if self.y + i[1] < 0:
+                                continue
+                            if self.x + i[0] < 0:
+                                continue
+                            if self.y + i[1] > 7:
+                                continue
+                            if self.x + i[0] > 7:
+                                continue
+                            else:
+                                Hover(i[0], i[1], x)
+                    if x.hovered:
+                        if keys == "left mouse down":
+                            destroy(x)
 
 # Handling Pawn Hovers
 # class Pawn(Button):
@@ -435,7 +495,9 @@ board = Board()
 # for i in range(0, 8):
 #     Pawn(i, 6, 'pawnB')
 k = King(4, 4, 'kingW')
+k = King(4, 3, 'kingW')
 kb = King(4, 5, 'kingB')
+kb = King(4, 7, 'kingB')
 # q = Queen(3, 0, 'queenW')
 # qb = Queen(3, 7, 'queenB')
 # b = Bishop(2, 0, 'bishopW')
