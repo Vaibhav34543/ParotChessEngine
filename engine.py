@@ -51,7 +51,6 @@ def deleteCollidedOpp(pos, pieceClass):
         for i in scene.entities:
             if type(i) == "<class '__main__.Board'>":
                 continue
-            Log(f"Entity TYPE CHECK : {type(i)}")
             Log(f"deleteCollidedOpp search for {pos} in {i.position}")
             if [int(i.x), int(i.y)] == pos:
                 Log("deleteCollidedOpp POSITIONS MATCHED: TRUE")
@@ -241,35 +240,35 @@ def RookManager(rook, h_parent):
         else:
             break
 
-# # Check for knight hovers
-# def KnightManager(knight, h_parent):
-#     # Kind of complicated but all it does is 
-#     # Checks for the L shaped positions if they are in board 
-#     # and then adds them to hovers
-#     if int(knight.y + 2) <= 7 and int(knight.x + 1) <= 7:
-#         if CheckPosCollide([knight.x+1, knight.y+2]) != True:
-#             Hover(1, 2, h_parent) 
-#     if int(knight.y + 2) <= 7 and int(knight.x - 1) >= 0:
-#         if CheckPosCollide([knight.x -1, knight.y +2]) != True:
-#             Hover(-1, 2, h_parent) 
-#     if int(knight.y + 1) <= 7 and int(knight.x + 2) <= 7:
-#         if CheckPosCollide([knight.x +2, knight.y+1]) != True:
-#             Hover(2, 1, h_parent) 
-#     if int(knight.y - 1) >= 0 and int(knight.x + 2) <= 7:
-#         if CheckPosCollide([knight.x+2, knight.y-1]) != True:
-#             Hover(2, -1, h_parent) 
-#     if int(knight.y + 1) <= 7 and int(knight.x - 2) >= 0:
-#         if CheckPosCollide([knight.x-2, knight.y+1]) != True:
-#             Hover(-2, 1, h_parent) 
-#     if int(knight.y - 1) >= 0 and int(knight.x - 2) >= 0:
-#         if CheckPosCollide([knight.x-2, knight.y-1]) != True:
-#             Hover(-2, -1, h_parent) 
-#     if int(knight.y - 2) >= 0 and int(knight.x + 1) <= 7:
-#         if CheckPosCollide([knight.x+1, knight.y-2]) != True:
-#             Hover(1, -2, h_parent) 
-#     if int(knight.y - 2) >= 0 and int(knight.x - 1) >= 0:
-#         if CheckPosCollide([knight.x-1, knight.y-2]) != True:
-#             Hover(-1, -2, h_parent)
+# Check for knight hovers
+def KnightManager(knight, h_parent):
+    # Kind of complicated but all it does is 
+    # Checks for the L shaped positions if they are in board 
+    # and then adds them to hovers
+    if int(knight.y + 2) <= 7 and int(knight.x + 1) <= 7:
+        if CheckPosCollide([knight.x+1, knight.y+2], returnClass(h_parent.parent)) != True:
+            Hover(1, 2, h_parent) 
+    if int(knight.y + 2) <= 7 and int(knight.x - 1) >= 0:
+        if CheckPosCollide([knight.x -1, knight.y +2], returnClass(h_parent.parent)) != True:
+            Hover(-1, 2, h_parent) 
+    if int(knight.y + 1) <= 7 and int(knight.x + 2) <= 7:
+        if CheckPosCollide([knight.x +2, knight.y+1], returnClass(h_parent.parent)) != True:
+            Hover(2, 1, h_parent) 
+    if int(knight.y - 1) >= 0 and int(knight.x + 2) <= 7:
+        if CheckPosCollide([knight.x+2, knight.y-1], returnClass(h_parent.parent)) != True:
+            Hover(2, -1, h_parent) 
+    if int(knight.y + 1) <= 7 and int(knight.x - 2) >= 0:
+        if CheckPosCollide([knight.x-2, knight.y+1], returnClass(h_parent.parent)) != True:
+            Hover(-2, 1, h_parent) 
+    if int(knight.y - 1) >= 0 and int(knight.x - 2) >= 0:
+        if CheckPosCollide([knight.x-2, knight.y-1], returnClass(h_parent.parent)) != True:
+            Hover(-2, -1, h_parent) 
+    if int(knight.y - 2) >= 0 and int(knight.x + 1) <= 7:
+        if CheckPosCollide([knight.x+1, knight.y-2], returnClass(h_parent.parent)) != True:
+            Hover(1, -2, h_parent) 
+    if int(knight.y - 2) >= 0 and int(knight.x - 1) >= 0:
+        if CheckPosCollide([knight.x-1, knight.y-2], returnClass(h_parent.parent)) != True:
+            Hover(-1, -2, h_parent)
 
 # Handling King's hovers
 class King(Button):
@@ -360,49 +359,51 @@ class King(Button):
 #                     elif CheckPosCollide([self.x, self.y + 1]) != True:
 #                         Hover(0, 1, x)
 
-# # Bishop Hovers
-# class Bishop(Button):
-#     def __init__(self, x, y, textr):
-#         super().__init__(
-#             model='plane',
-#             parent=scene,
-#             texture = textr,
-#             rotation_x = -90,
-#             position = (x, y, -0.01),
-#             color = color.white
-#         )
-#         if str(self.texture) == "bishopW.png":
-#             Positions[0].append([x, y])
-#         else:
-#             Positions[1].append([x, y])
+# Bishop Hovers
+class Bishop(Button):
+    def __init__(self, x, y, textr):
+        super().__init__(
+            model='plane',
+            parent=scene,
+            texture = textr,
+            rotation_x = -90,
+            position = (x, y, -0.01),
+            color = color.white
+        )
+        if str(self.texture) == "bishopW.png":
+            Positions[0].append([x, y])
+        else:
+            Positions[1].append([x, y])
 
-#     def input(self, keys):
-#         if self.hovered:
-#             if keys == 'left mouse down':
-#                 x = Entity(parent = self, origin = (0, 0, 0))
-#                 BishopManager(self, x)
+    def input(self, keys):
+        if CheckTurn(self):
+            if self.hovered:
+                if keys == 'left mouse down':
+                    x = Entity(parent = self, origin = (0, 0, 0))
+                    BishopManager(self, x)
 
-# # Rook hovers
-# class Rook(Button):
-#     def __init__(self, x, y, textr):
-#         super().__init__(
-#             model='plane',
-#             parent=scene,
-#             texture = textr,
-#             rotation_x = -90,
-#             position = (x, y, -0.01),
-#             color = color.white
-#         )
-#         if str(self.texture) == "rookW.png":
-#             Positions[0].append([x, y])
-#         else:
-#             Positions[1].append([x, y])
+# Rook hovers
+class Rook(Button):
+    def __init__(self, x, y, textr):
+        super().__init__(
+            model='plane',
+            parent=scene,
+            texture = textr,
+            rotation_x = -90,
+            position = (x, y, -0.01),
+            color = color.white
+        )
+        if str(self.texture) == "rookW.png":
+            Positions[0].append([x, y])
+        else:
+            Positions[1].append([x, y])
 
-#     def input(self, keys):
-#         if self.hovered:
-#             if keys == 'left mouse down':
-#                 x = Entity(parent = self, origin = (0, 0, 0))
-#                 RookManager(self, x)
+    def input(self, keys):
+        if CheckTurn(self):
+            if self.hovered:
+                if keys == 'left mouse down':
+                    x = Entity(parent = self, origin = (0, 0, 0))
+                    RookManager(self, x)
 
 # queen hovers
 class Queen(Button):
@@ -430,77 +431,98 @@ class Queen(Button):
                     RookManager(self, x)
                     BishopManager(self, x)
 
-# # Knight hovers
-# class Knight(Button):
-#     def __init__(self, x, y, textr):
-#         super().__init__(
-#             model='plane',
-#             parent=scene,
-#             texture = textr,
-#             rotation_x = -90,
-#             position = (x, y, -0.01),
-#             color = color.white
-#         )
-#         if str(self.texture) == "knightW.png":
-#             Positions[0].append([x, y])
-#         else:
-#             Positions[1].append([x, y])
+# Knight hovers
+class Knight(Button):
+    def __init__(self, x, y, textr):
+        super().__init__(
+            model='plane',
+            parent=scene,
+            texture = textr,
+            rotation_x = -90,
+            position = (x, y, -0.01),
+            color = color.white
+        )
+        if str(self.texture) == "knightW.png":
+            Positions[0].append([x, y])
+        else:
+            Positions[1].append([x, y])
 
 
-#     def input(self, keys):
-#         if self.hovered:
-#             if keys == 'left mouse down':
-#                 x = Entity(parent = self, origin = (0, 0, 0))
-#                 KnightManager(self, x)
+    def input(self, keys):
+        if self.hovered:
+            if keys == 'left mouse down':
+                if CheckTurn(self):
+                    x = Entity(parent = self, origin = (0, 0, 0))
+                    KnightManager(self, x)
 
-# # Pawn Hovers
-# class Pawn(Button):
-#     def __init__(self, x, y, textr):
-#         super().__init__(
-#             model='plane',
-#             parent=scene,
-#             texture = textr,
-#             rotation_x = -90,
-#             position = (x, y, -0.01),
-#             color = color.white
-#         )
-#         if str(self.texture) == "pawnW.png":
-#             Positions[0].append([x, y])
-#         else:
-#             Positions[1].append([x, y])
+# Checks for diagnol collisions 
+def PawnCollisions(current_pos, pieceClass, h_parent):
+    p = current_pos
+    if pieceClass == "w":
+        Log(f"Checking for Diagnol Pawn Collisions for {p} in {Positions[1]}")
+        if [p[0] + 1, p[1] + 1] in Positions[1]:
+            Log("FOUND DIAGNOL COLLISION: TRUE")
+            Hover(1, 1, h_parent)
+        elif [p[0] - 1, p[1] + 1] in Positions[1]:
+            Log("FOUND DIAGNOL COLLISION: TRUE")
+            Hover(-1, 1, h_parent)
+    else:
+        Log(f"Checking for Diagnol Pawn Collisions for {p} in {Positions[1]}")
+        if [p[0] + 1, p[1] - 1] in Positions[0]:
+            Log("FOUND DIAGNOL COLLISION: TRUE")
+            Hover(1, -1, h_parent)
+        elif [p[0] - 1, p[1] - 1] in Positions[0]:
+            Log("FOUND DIAGNOL COLLISION: TRUE")
+            Hover(-1, -1, h_parent)
 
-#     def input(self, keys):
-#         if self.hovered:
-#             if keys == 'left mouse down':
-#                 x = Entity(parent = self, origin = (0, 0, 0))
-#                 print(self.texture)
-#                 if str(self.texture) == "pawnB.png":
-#                     print("check") 
-#                     if self.y == 6:
-#                         if CheckPosCollide([self.x, self.y - 1]) != True:
-#                             Hover(0, -1, x)
-#                             if CheckPosCollide([self.x, self.y - 2]) != True:
-#                                 Hover(0, -2, x)
-                    
-#                     elif CheckPosCollide([self.x, self.y - 1]) != True:
-#                         Hover(0, -1, x)
-#                 elif str(self.texture) == "pawnW.png":
-#                     if self.y == 1:
-#                         if CheckPosCollide([self.x, self.y + 1]) != True:
-#                             Hover(0, 1, x)
-#                             if CheckPosCollide([self.x, self.y + 2]) != True:
-#                                 Hover(0, 2, x)
-                    
-#                     elif CheckPosCollide([self.x, self.y + 1]) != True:
-#                         Hover(0, 1, x)
+# Pawn Hovers
+class Pawn(Button):
+    def __init__(self, x, y, textr):
+        super().__init__(
+            model='plane',
+            parent=scene,
+            texture = textr,
+            rotation_x = -90,
+            position = (x, y, -0.01),
+            color = color.white
+        )
+        if str(self.texture) == "pawnW.png":
+            Positions[0].append([x, y])
+        else:
+            Positions[1].append([x, y])
+
+    def input(self, keys):
+        if self.hovered:
+            if keys == 'left mouse down':
+                if CheckTurn(self):
+                    x = Entity(parent = self, origin = (0, 0, 0))
+                    if str(self.texture) == "pawnB.png":
+                        if self.y == 6:
+                            if CheckPosCollide([self.x, self.y - 1], returnClass(self)) != True:
+                                Hover(0, -1, x)
+                                if CheckPosCollide([self.x, self.y - 2], returnClass(self)) != True:
+                                    Hover(0, -2, x)
+                        
+                        elif CheckPosCollide([self.x, self.y - 1], returnClass(self)) != True:
+                            Hover(0, -1, x)
+                    elif str(self.texture) == "pawnW.png":
+                        if self.y == 1:
+                            if CheckPosCollide([self.x, self.y + 1], returnClass(self)) != True:
+                                Hover(0, 1, x)
+                                if CheckPosCollide([self.x, self.y + 2], returnClass(self)) != True:
+                                    Hover(0, 2, x)
+                        
+                        elif CheckPosCollide([self.x, self.y + 1], returnClass(self)) != True:
+                            Hover(0, 1, x)
+                    PawnCollisions([int(self.x), int(self.y)], returnClass(self), x)
 
 
 board = Board()
 
 for i in range(0, 8):
-    Queen(i, 1, 'queenW')
+    Pawn(i, 1, 'pawnW')
 for i in range(0, 8):
-    Queen(i, 6, 'queenB')
+    Pawn(i, 6, 'pawnB')
 # k = King(4, 4, 'kingW')
 # k = King(4, 3, 'kingW')
 # kb = King(4, 5, 'kingB')
