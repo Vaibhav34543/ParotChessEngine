@@ -184,6 +184,15 @@ class Board(Button):
             if key == 'left mouse down':
                 destroyHovers()
 
+# Stops the hovers when an enemy pawn has been targeted and can't go further
+def captureBug(pos, pieceClass):
+    if pieceClass == "w":
+        if [int(pos[0]), int(pos[1])] in Positions[1]:
+            return True
+    else:
+        if [int(pos[0]), int(pos[1])] in Positions[0]:
+            return True
+
 # Handling Bishop Hovers
 def BishopManager(bishop, h_parent):
     # Checks how many pieces can diagonally be moved
@@ -194,21 +203,32 @@ def BishopManager(bishop, h_parent):
     for i in range(1, min(top, right)):
         if CheckPosCollide([bishop.x + i, bishop.y + i], returnClass(h_parent.parent))!=True:
             Hover(i, i, h_parent)
+            if captureBug([bishop.x + i, bishop.y + i], returnClass(h_parent.parent)):
+                break
+        # if checkOppCollisions([bishop.x + i, bishop.y + i], returnClass(h_parent)):
+        #     Hover(i, i, h_parent)
+        #     break
         else:
             break
     for i in range(1, min(top, left)):
         if CheckPosCollide([bishop.x - i, bishop.y + i], returnClass(h_parent.parent))!=True:
             Hover(-i, i, h_parent)
+            if captureBug([bishop.x - i, bishop.y + i], returnClass(h_parent.parent)):
+                break
         else:
             break
     for i in range(1, min(left, bottom)):
         if CheckPosCollide([bishop.x - i, bishop.y - i], returnClass(h_parent.parent))!=True:
             Hover(-i, -i, h_parent)
+            if captureBug([bishop.x - i, bishop.y - i], returnClass(h_parent.parent)):
+                break
         else:
             break
     for i in range(1, min(bottom, right)):
         if CheckPosCollide([bishop.x + i, bishop.y - i], returnClass(h_parent.parent))!=True:
             Hover(i, -i, h_parent)
+            if captureBug([bishop.x + i, bishop.y - i], returnClass(h_parent.parent)):
+                break
         else:
             break
 
@@ -222,21 +242,29 @@ def RookManager(rook, h_parent):
     for i in range(1, right):
         if CheckPosCollide([rook.x + i, rook.y], returnClass(h_parent.parent))!=True:
             Hover(i, 0, h_parent)
+            if captureBug([rook.x + i, rook.y], returnClass(h_parent.parent)):
+                break
         else:
             break
     for i in range(1, left):
         if CheckPosCollide([rook.x - i, rook.y], returnClass(h_parent.parent))!=True:
             Hover(-i, 0, h_parent)
+            if captureBug([rook.x - i, rook.y], returnClass(h_parent.parent)):
+                break
         else:
             break
     for i in range(1, top):
         if CheckPosCollide([rook.x, rook.y + i], returnClass(h_parent.parent))!=True:
             Hover(0, i, h_parent)
+            if captureBug([rook.x, rook.y + i], returnClass(h_parent.parent)):
+                break
         else:
             break
     for i in range(1, bottom):
         if CheckPosCollide([rook.x, rook.y - i], returnClass(h_parent.parent))!=True:
             Hover(0, -i, h_parent)
+            if captureBug([rook.x, rook.y - i], returnClass(h_parent.parent)):
+                break
         else:
             break
 
@@ -463,7 +491,7 @@ def PawnCollisions(current_pos, pieceClass, h_parent):
         if [p[0] + 1, p[1] + 1] in Positions[1]:
             Log("FOUND DIAGNOL COLLISION: TRUE")
             Hover(1, 1, h_parent)
-        elif [p[0] - 1, p[1] + 1] in Positions[1]:
+        if [p[0] - 1, p[1] + 1] in Positions[1]:
             Log("FOUND DIAGNOL COLLISION: TRUE")
             Hover(-1, 1, h_parent)
     else:
@@ -471,7 +499,7 @@ def PawnCollisions(current_pos, pieceClass, h_parent):
         if [p[0] + 1, p[1] - 1] in Positions[0]:
             Log("FOUND DIAGNOL COLLISION: TRUE")
             Hover(1, -1, h_parent)
-        elif [p[0] - 1, p[1] - 1] in Positions[0]:
+        if [p[0] - 1, p[1] - 1] in Positions[0]:
             Log("FOUND DIAGNOL COLLISION: TRUE")
             Hover(-1, -1, h_parent)
 
@@ -499,21 +527,34 @@ class Pawn(Button):
                     if str(self.texture) == "pawnB.png":
                         if self.y == 6:
                             if CheckPosCollide([self.x, self.y - 1], returnClass(self)) != True:
-                                Hover(0, -1, x)
+                                Log("SELF CAPTURE: FALSE")
+                                if captureBug([self.x, self.y - 1], returnClass(self)) != True:
+                                    Log("ENEMY ON SAME FILE: FALSE")
+                                    Hover(0, -1, x)
                                 if CheckPosCollide([self.x, self.y - 2], returnClass(self)) != True:
-                                    Hover(0, -2, x)
+                                    if captureBug([self.x, self.y - 2], returnClass(self)) != True:
+                                        Hover(0, -2, x)
                         
-                        elif CheckPosCollide([self.x, self.y - 1], returnClass(self)) != True:
-                            Hover(0, -1, x)
+                        else:
+                            if CheckPosCollide([self.x, self.y - 1], returnClass(self)) != True:
+                                Log("SELF CAPTURE: FALSE")
+                                if captureBug([self.x, self.y - 1], returnClass(self)) != True:
+                                    Log("ENEMY ON SAME FILE: FALSE")
+                                    Hover(0, -1, x)
                     elif str(self.texture) == "pawnW.png":
                         if self.y == 1:
                             if CheckPosCollide([self.x, self.y + 1], returnClass(self)) != True:
-                                Hover(0, 1, x)
+                                Log("SELF CAPTURE: FALSE")
+                                if captureBug([self.x, self.y + 1], returnClass(self)) != True:
+                                    Log("ENEMY ON SAME FILE: FALSE")
+                                    Hover(0, 1, x)
                                 if CheckPosCollide([self.x, self.y + 2], returnClass(self)) != True:
-                                    Hover(0, 2, x)
+                                    if captureBug([self.x, self.y + 2], returnClass(self)) != True:
+                                        Hover(0, 2, x)
                         
                         elif CheckPosCollide([self.x, self.y + 1], returnClass(self)) != True:
-                            Hover(0, 1, x)
+                            if captureBug([self.x, self.y + 1], returnClass(self)) != True:
+                                Hover(0, 1, x)
                     PawnCollisions([int(self.x), int(self.y)], returnClass(self), x)
 
 
@@ -523,24 +564,22 @@ for i in range(0, 8):
     Pawn(i, 1, 'pawnW')
 for i in range(0, 8):
     Pawn(i, 6, 'pawnB')
-# k = King(4, 4, 'kingW')
-# k = King(4, 3, 'kingW')
-# kb = King(4, 5, 'kingB')
-# kb = King(4, 7, 'kingB')
-# q = Queen(3, 0, 'queenW')
-# qb = Queen(3, 7, 'queenB')
-# b = Bishop(2, 0, 'bishopW')
-# bb = Bishop(2, 7, 'bishopB')
-# b2 = Bishop(5, 0, 'bishopW')
-# b2b = Bishop(5, 7, 'bishopB')
-# Kn = Knight(1, 0, 'knightW')
-# Knb = Knight(1, 7, 'knightB')
-# Kn2 = Knight(6, 0, 'knightW')
-# Kn2b = Knight(6, 7, 'knightB')
-# r = Rook(0, 0, 'rookW')
-# rb = Rook(0, 7, 'rookB')
-# r2 = Rook(7, 0, 'rookW')
-# r2b = Rook(7, 7, 'rookB')
+k = King(4, 0, 'kingW')
+kb = King(4, 7, 'kingB')
+q = Queen(3, 0, 'queenW')
+qb = Queen(3, 7, 'queenB')
+b = Bishop(2, 0, 'bishopW')
+bb = Bishop(2, 7, 'bishopB')
+b2 = Bishop(5, 0, 'bishopW')
+b2b = Bishop(5, 7, 'bishopB')
+Kn = Knight(1, 0, 'knightW')
+Knb = Knight(1, 7, 'knightB')
+Kn2 = Knight(6, 0, 'knightW')
+Kn2b = Knight(6, 7, 'knightB')
+r = Rook(0, 0, 'rookW')
+rb = Rook(0, 7, 'rookB')
+r2 = Rook(7, 0, 'rookW')
+r2b = Rook(7, 7, 'rookB')
 
 # aligning camera with board
 cam = EditorCamera()
