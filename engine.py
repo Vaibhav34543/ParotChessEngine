@@ -1,17 +1,18 @@
 from ursina import *
+import json
 import datetime ## DEBUG
 
 turn = 0        # 0 - White, 1 - Black
 PossibleCheckers = ["queen", "rook", "bishop", "knight", "pawn"]
 
 def GetCheckerName(pos):
-    Log("[GetCheckerName] CALLED: TRUE")
+    Log(f"[GetCheckerName] CALLED: TRUE BY POS {pos}")
     for i in scene.entities:
         if pos == [int(i.x), int(i.y)]:
             return i.name
 
 def GetKing(classpiece):
-    Log("[GetKing] CALLED: TRUE")
+    Log(f"[GetKing] CALLED: TRUE BY CLASS {classpiece}")
     for i in scene.entities:
         if i.name == "king":
             if returnClass(i) == classpiece:
@@ -20,20 +21,21 @@ def GetKing(classpiece):
 
 
 def GetKingPos(classPiece):
+    Log(f"[GetKingPos] CALLED: TRUE BY CLASS {classPiece}")
     for i in scene.entities:
         print(i)
-        Log(f"CHECK: {i.x}")
-        Log(f"Checking Entity Name: {i.name}")
+        Log(f"\tCHECK: {i.x}")
+        Log(f"\tChecking Entity Name: {i.name}")
         if str(i.name) == "king":
             if returnClass(i) == classPiece:
-                Log(f"FOUND KING: {i.parent}")
+                Log(f"\t\tFOUND KING: {i.parent}")
                 Pos = [int(i.x), int(i.y)]
                 return Pos
 
 
 # Checks all possible ways and returns True if the king has got check
 def CheckForCheck(king, pieceClass):
-    Log("[CheckForCheck] CALLED: TRUE")
+    Log(f"[CheckForCheck] CALLED: TRUE  FOR {king}, CLASS: {pieceClass}")
     kingPos = [int(king.x), int(king.y)]
     Log(f"\tCHECKING FOR CHECK ON KING POS {kingPos}")
     kingClass = returnClass(king)
@@ -48,7 +50,7 @@ def CheckForCheck(king, pieceClass):
             break
         elif checkOppCollisions([kingPos[0], kingPos[1] + i], kingClass):
             if GetCheckerName([kingPos[0], kingPos[1] + i]) in ["queen", "rook"]:
-                Log(f"\tCHECK FOUND: TRUE BY {[kingPos[0], kingPos[1] + i]}")
+                Log(f"\t\tCHECK FOUND: TRUE BY {[kingPos[0], kingPos[1] + i]}")
                 king.color = color.red
                 c = 1
     for i in range(1, bottom):
@@ -56,7 +58,7 @@ def CheckForCheck(king, pieceClass):
             break
         elif checkOppCollisions([kingPos[0], kingPos[1] - i], kingClass):
             if GetCheckerName([kingPos[0], kingPos[1] - i]) in ["queen", "rook"]:
-                Log(f"\tCHECK FOUND: TRUE BY {[kingPos[0], kingPos[1] - i]}")
+                Log(f"\t\tCHECK FOUND: TRUE BY {[kingPos[0], kingPos[1] - i]}")
                 king.color = color.red
                 c = 1
     for i in range(1, right):
@@ -64,7 +66,7 @@ def CheckForCheck(king, pieceClass):
             break
         elif checkOppCollisions([kingPos[0] + i, kingPos[1]], kingClass):
             if GetCheckerName([kingPos[0] + i, kingPos[1]]) in ["queen", "rook"]:
-                Log(f"CHECK FOUND: TRUE by position {[kingPos[0]+i, kingPos[1]]}")
+                Log(f"\t\tCHECK FOUND: TRUE by position {[kingPos[0]+i, kingPos[1]]}")
                 king.color = color.red
                 c = 1
     for i in range(1, left):
@@ -72,7 +74,7 @@ def CheckForCheck(king, pieceClass):
             break
         elif checkOppCollisions([kingPos[0] - i, kingPos[1]], kingClass):
             if GetCheckerName([kingPos[0] - i, kingPos[1]]) in ["queen", "rook"]:
-                Log(f"CHECK FOUND: TRUE by position {[kingPos[0]-i, kingPos[1]]}")
+                Log(f"\t\tCHECK FOUND: TRUE by position {[kingPos[0]-i, kingPos[1]]}")
                 king.color = color.red
                 c = 1
             
@@ -82,7 +84,7 @@ def CheckForCheck(king, pieceClass):
             break
         if checkOppCollisions([kingPos[0] + i, kingPos[1] + i], kingClass):
             if GetCheckerName([kingPos[0] + i, kingPos[1] + i]) in ["queen", "bishop"]:
-                Log(f"CHECK FOUND: TRUE by position {[kingPos[0]+i, kingPos[1]+i]}")
+                Log(f"\t\tCHECK FOUND: TRUE by position {[kingPos[0]+i, kingPos[1]+i]}")
                 king.color = color.red
                 c = 1
     for i in range(1, min(top, left)):
@@ -90,7 +92,7 @@ def CheckForCheck(king, pieceClass):
             break
         if checkOppCollisions([kingPos[0] - i, kingPos[1] + i], kingClass):
             if GetCheckerName([kingPos[0] - i, kingPos[1] + i]) in ["queen", "bishop"]:
-                Log(f"CHECK FOUND: TRUE by position {[kingPos[0]+i, kingPos[1]+i]}")
+                Log(f"\t\tCHECK FOUND: TRUE by position {[kingPos[0]+i, kingPos[1]+i]}")
                 king.color = color.red
                 c = 1
     for i in range(1, min(bottom, left)):
@@ -98,7 +100,7 @@ def CheckForCheck(king, pieceClass):
             break
         if checkOppCollisions([kingPos[0] - i, kingPos[1] - i], kingClass):
             if GetCheckerName([kingPos[0] - i, kingPos[1] - i]) in ["queen", "bishop"]:
-                Log(f"CHECK FOUND: TRUE by position {[kingPos[0]+i, kingPos[1]+i]}")
+                Log(f"\t\tCHECK FOUND: TRUE by position {[kingPos[0]+i, kingPos[1]+i]}")
                 king.color = color.red
                 c = 1
     for i in range(1, min(bottom, right)):
@@ -106,7 +108,7 @@ def CheckForCheck(king, pieceClass):
             break
         if checkOppCollisions([kingPos[0] + i, kingPos[1] - i], kingClass):
             if GetCheckerName([kingPos[0] + i, kingPos[1] - i]) in ["queen", "bishop"]:
-                Log(f"CHECK FOUND: TRUE by position {[kingPos[0]+i, kingPos[1]+i]}")
+                Log(f"\t\tCHECK FOUND: TRUE by position {[kingPos[0]+i, kingPos[1]+i]}")
                 king.color = color.red
                 c = 1
     if c == 1:
@@ -123,7 +125,7 @@ def CheckForCheck(king, pieceClass):
                 continue
             if checkOppCollisions([int(kingPos[0] + i[0]), int(kingPos[1] + i[1])], kingClass):
                 if GetCheckerName([int(kingPos[0] + i[0]), int(kingPos[1] + i[1])]) in ["pawn"]:
-                    Log(f"CHECK FOUND: TRUE by position {[int(kingPos[0] + i[0]), int(kingPos[1] + i[1])]}")
+                    Log(f"\t\tCHECK FOUND: TRUE by position {[int(kingPos[0] + i[0]), int(kingPos[1] + i[1])]}")
                     king.color = color.red
                     c = 1
     else:
@@ -132,7 +134,7 @@ def CheckForCheck(king, pieceClass):
                 continue
             if checkOppCollisions([int(kingPos[0] + i[0]), int(kingPos[1] + i[1])], kingClass):
                 if GetCheckerName([int(kingPos[0] + i[0]), int(kingPos[1] + i[1])]) in ["pawn"]:
-                    Log(f"CHECK FOUND: TRUE by position {[int(kingPos[0] + i[0]), int(kingPos[1] + i[1])]}")
+                    Log(f"\t\tCHECK FOUND: TRUE by position {[int(kingPos[0] + i[0]), int(kingPos[1] + i[1])]}")
                     king.color = color.red
                     c = 1
     for i in AllKnightMovement:
@@ -140,9 +142,14 @@ def CheckForCheck(king, pieceClass):
             continue
         if checkOppCollisions([int(kingPos[0] + i[0]), int(kingPos[1] + i[1])], kingClass):
             if GetCheckerName([int(kingPos[0] + i[0]), int(kingPos[1] + i[1])]) in ["knight"]:
-                Log(f"CHECK FOUND: TRUE by position {[int(kingPos[0] + i[0]), int(kingPos[1] + i[1])]}")
+                Log(f"\t\tCHECK FOUND: TRUE by position {[int(kingPos[0] + i[0]), int(kingPos[1] + i[1])]}")
                 king.color = color.red
                 c = 1
+    
+    if c == 1:
+        return True
+    else:
+        return False
     
 
 
@@ -199,7 +206,7 @@ def returnClass(piece):
 # Deletes the enemy collided sprite
 def deleteCollidedOpp(pos, pieceClass):
     if returnClass(pieceClass) == "w":
-        Log("[deleteCollidedOpp] CALLED: TRUE")
+        Log(f"[deleteCollidedOpp] CALLED: TRUE POS: {pos}, CLASS: {pieceClass}")
         for i in scene.entities:
             if type(i) == "<class '__main__.Board'>":
                 continue
@@ -214,7 +221,7 @@ def deleteCollidedOpp(pos, pieceClass):
                     destroy(i)
                     break
     else:
-        Log("[deleteCollidedOpp] CALLED: TRUE")
+        Log(f"[deleteCollidedOpp] CALLED: TRUE POS: {pos}, CLASS: {pieceClass}")
         for i in scene.entities:
             if type(i) == "<class '__main__.Board'>":
                 continue
@@ -233,7 +240,7 @@ def deleteCollidedOpp(pos, pieceClass):
 # Takes in a move and checks if that moves x,y match with both
 # the white and black class positions
 def checkOppCollisions(move, pieceClass):
-    Log(f"[checkOppCollisions] CALLED: TRUE [{pieceClass}]")
+    Log(f"[checkOppCollisions] CALLED: TRUE FOR MOVE: {move}, CLASS:  {pieceClass}")
     if pieceClass == "w":
         if move in Positions[1]:
             Log(f"\t{move} FOUND IN {Positions[1]}")
@@ -249,6 +256,8 @@ def checkOppCollisions(move, pieceClass):
 
 # Updates the positions
 def ManagePositions(prev_pos, new_pos, pClass):
+    Log(f"[ManagePositions] CALLED TRUE")
+    Log(f"[ManagePositions] PREVPOS {prev_pos}, NEWPOS {new_pos}, CLASS {pClass}")
     pClassC = returnClass(pClass)
     if pClassC == "w":
         for i in Positions[0]:
@@ -260,9 +269,11 @@ def ManagePositions(prev_pos, new_pos, pClass):
             if prev_pos == i:
                 Positions[1].remove(prev_pos)
                 Positions[1].append(new_pos)
+    Log(f"\tFINAL POS: {Positions}")
 
 # Destroys the hovers
 def destroyHovers():
+    Log(f"[destroyHovers] CALLED TRUE")
     for i in scene.entities:
         if i.name == "hover":
             destroy(i)
@@ -270,7 +281,7 @@ def destroyHovers():
 
 # Checks if a piece collides with its own class
 def CheckPosCollide(pos, pieceClass):
-    Log("[CheckPosCollide] CALLED: TRUE")
+    Log(f"[CheckPosCollide] CALLED: TRUE FOR {pos}, CLASS {pieceClass}")
     pos = [int(pos[0]), int(pos[1])]
     if pieceClass == "w":
         if pos in Positions[0]:
@@ -298,7 +309,7 @@ class Hover(Button):
     def input(self, key):
         if self.hovered:
             if key == "left mouse down":
-                Log(f"CURRENT POSITIONS: {Positions}")
+                Log(f"|HOVER| CURRENT POSITIONS: {Positions}")
                 old_move = [int(self.parent.parent.x), int(self.parent.parent.y)]
                 new_move = [int(self.parent.parent.x + self.x), int(self.parent.parent.y + self.z)]
 
@@ -317,7 +328,7 @@ class Hover(Button):
                 # Destroys all hovers at the end after clicking
                 destroy(self.parent)
                 ChangeTurn(self.parent.parent)
-                Log(f"\tCURRENT TURN STATE [{turn}]")
+                Log(f"\tCURRENT TURN STATE +{turn}")
 
 
 # Creates the board
@@ -342,16 +353,17 @@ class Board(Button):
 
 # Stops the hovers when an enemy pawn has been targeted and can't go further
 def captureBug(pos, pieceClass):
+    Log(f"[captureBug] CALLED TRUE BY {pos}, CLASS {pieceClass}")
     if pieceClass == "w":
         if [int(pos[0]), int(pos[1])] in Positions[1]:
             return True
     else:
-        Log(f"\t\t\t\t\t{[int(pos[0]), int(pos[1])]} IN {Positions[0]}")
         if [int(pos[0]), int(pos[1])] in Positions[0]:
             return True
 
 # Handling Bishop Hovers
 def BishopManager(bishop, h_parent):
+    Log(f"[BishopManager] CALLED TRUE BY {bishop.position}")
     # Checks how many pieces can diagonally be moved
     right = int(8 - bishop.x)
     top = int(8 - bishop.y)
@@ -391,42 +403,53 @@ def BishopManager(bishop, h_parent):
 
 # Handling Rook Hovers
 def RookManager(rook, h_parent):
+    Log(f"[RookManager] CALLED TRUE BY {rook.position}")
     # Checking for clamp values
+    currPos = [int(rook.x), int(rook.y)]
     right = int(8 - rook.x)
     top = int(8 - rook.y)
     left = int(rook.x + 1)
     bottom = int(rook.y + 1)
     for i in range(1, right):
-        if CheckPosCollide([rook.x + i, rook.y], returnClass(h_parent.parent))!=True:
-            Hover(i, 0, h_parent)
-            if captureBug([rook.x + i, rook.y], returnClass(h_parent.parent)):
+        move = [int(rook.x + i), int(rook.y)]
+        if CheckPinnedPieces(currPos, move, h_parent.parent) != True:
+            if CheckPosCollide([rook.x + i, rook.y], returnClass(h_parent.parent))!=True:
+                Hover(i, 0, h_parent)
+                if captureBug([rook.x + i, rook.y], returnClass(h_parent.parent)):
+                    break
+            else:
                 break
-        else:
-            break
     for i in range(1, left):
-        if CheckPosCollide([rook.x - i, rook.y], returnClass(h_parent.parent))!=True:
-            Hover(-i, 0, h_parent)
-            if captureBug([rook.x - i, rook.y], returnClass(h_parent.parent)):
+        move = [int(rook.x - i), int(rook.y)]
+        if CheckPinnedPieces(currPos, move, h_parent.parent) != True:
+            if CheckPosCollide([rook.x - i, rook.y], returnClass(h_parent.parent))!=True:
+                Hover(-i, 0, h_parent)
+                if captureBug([rook.x - i, rook.y], returnClass(h_parent.parent)):
+                    break
+            else:
                 break
-        else:
-            break
     for i in range(1, top):
-        if CheckPosCollide([rook.x, rook.y + i], returnClass(h_parent.parent))!=True:
-            Hover(0, i, h_parent)
-            if captureBug([rook.x, rook.y + i], returnClass(h_parent.parent)):
+        move = [int(rook.x), int(rook.y + i)]
+        if CheckPinnedPieces(currPos, move, h_parent.parent) != True:
+            if CheckPosCollide([rook.x, rook.y + i], returnClass(h_parent.parent))!=True:
+                Hover(0, i, h_parent)
+                if captureBug([rook.x, rook.y + i], returnClass(h_parent.parent)):
+                    break
+            else:
                 break
-        else:
-            break
     for i in range(1, bottom):
-        if CheckPosCollide([rook.x, rook.y - i], returnClass(h_parent.parent))!=True:
-            Hover(0, -i, h_parent)
-            if captureBug([rook.x, rook.y - i], returnClass(h_parent.parent)):
+        move = [int(rook.x), int(rook.y - i)]
+        if CheckPinnedPieces(currPos, move, h_parent.parent) != True:
+            if CheckPosCollide([rook.x, rook.y - i], returnClass(h_parent.parent))!=True:
+                Hover(0, -i, h_parent)
+                if captureBug([rook.x, rook.y - i], returnClass(h_parent.parent)):
+                    break
+            else:
                 break
-        else:
-            break
 
 # Check for knight hovers
 def KnightManager(knight, h_parent):
+    Log(f"[KnightManager] CALLED TRUE FOR {knight.position}")
     # Kind of complicated but all it does is 
     # Checks for the L shaped positions if they are in board 
     # and then adds them to hovers
@@ -593,6 +616,7 @@ class Knight(Button):
 # Checks for diagnol collisions 
 def PawnCollisions(current_pos, pieceClass, h_parent):
     Log("[PawnCollisions] CALLED: TRUE")
+    Log(f"[PawnCollisions] CURRENTPOS {current_pos}, CLASS: {pieceClass}, PARENT: h_parent")
     p = current_pos
     if pieceClass == "w":
         Log(f"\t CHECKING DIAGNOL COLLISIONS FOR {p} IN {Positions[1]}")
@@ -633,49 +657,54 @@ class Pawn(Button):
                 if CheckTurn(self):
                     x = Entity(parent = self, origin = (0, 0, 0))
                     if str(self.texture) == "pawnB.png":
-                        for i in range(3):
+                        for i in range(1, 3):
                             if i == 2 and self.y != 6:
                                 break
                             move = [int(self.x), int(self.y - i)]
-                            if CheckPosCollide(move, returnClass(self)) != True:
-                                if captureBug(move, returnClass(self)) != True:
-                                    Hover(0, -i, x)
-                                else:
-                                    break
+                            if CheckPinnedPieces([int(self.x), int(self.y)], move, self) != True:
+                                if CheckPosCollide(move, returnClass(self)) != True:
+                                    if captureBug(move, returnClass(self)) != True:
+                                        Hover(0, -i, x)
+                                    else:
+                                        break
                     else:
-                        for i in range(3):
+                        for i in range(1, 3):
                             if i == 2 and self.y != 1:
                                 break
                             move = [int(self.x), int(self.y + i)]
-                            if CheckPosCollide(move, returnClass(self)) != True:
-                                if captureBug(move, returnClass(self)) != True:
-                                    Hover(0, i, x)
-                                else:
-                                    break
+                            if CheckPinnedPieces([int(self.x), int(self.y)], move, self) != True:
+                                if CheckPosCollide(move, returnClass(self)) != True:
+                                    if captureBug(move, returnClass(self)) != True:
+                                        Hover(0, i, x)
+                                    else:
+                                        break
                         
-                        # if self.y == 6:
-                        #     if CheckPosCollide([self.x, self.y - 1], returnClass(self)) != True:
-                        #         if captureBug([self.x, self.y - 1], returnClass(self)) != True:
-                        #             Hover(0, -1, x)
-                        #         if CheckPosCollide([self.x, self.y - 2], returnClass(self)) != True:
-                        #             if captureBug([self.x, self.y - 2], returnClass(self)) != True:
-                        #                 Hover(0, -2, x)
-                        
-                        # else:
-                        #     if CheckPosCollide([self.x, self.y - 1], returnClass(self)) != True:
-                        #         if captureBug([self.x, self.y - 1], returnClass(self)) != True:
-                        #             Hover(0, -1, x)
-                            # if CheckPosCollide([self.x, self.y + 1], returnClass(self)) != True:
-                            #     if captureBug([self.x, self.y + 1], returnClass(self)) != True:
-                            #         Hover(0, 1, x)
-                            #     if CheckPosCollide([self.x, self.y + 2], returnClass(self)) != True:
-                            #         if captureBug([self.x, self.y + 2], returnClass(self)) != True:
-                            #             Hover(0, 2, x)
-                        
-                        # elif CheckPosCollide([self.x, self.y + 1], returnClass(self)) != True:
-                        #     if captureBug([self.x, self.y + 1], returnClass(self)) != True:
-                        #         Hover(0, 1, x)
                     PawnCollisions([int(self.x), int(self.y)], returnClass(self), x)
+
+def WriteTemp(tempData):
+    with open("temp.json", "w") as file:
+        json.dump(tempData, file, indent=2)
+def ReadTemp():
+    with open("temp.json", "r") as file:
+        return json.load(file)
+
+def CheckPinnedPieces(prev, newMove, piece):
+    pClass = returnClass(piece)
+    Log(f"-------[CheckPinnedPieces] CALLED TRUE")
+    Log(f"-------[CheckPinnedPieces] PREV {prev}, NEW {newMove}, CLASS {pClass}")
+    global Positions
+    Log(f"\tBEFORE POSITIONS: {Positions}")
+    WriteTemp(Positions)
+    ManagePositions(prev, newMove, piece)
+    if CheckForCheck(GetKing(pClass), pClass):
+        Log(f"\tMOVING {prev} TO {newMove} CAUSES CHECK: TRUE")
+        Positions = ReadTemp()
+        Log(f"\tAFTER POSITIONS: {Positions}")
+        return True
+    else:
+        Positions = ReadTemp()
+        Log(f"\tAFTER POSITIONS: {Positions}")
+        return False
 
 
 board = Board()
@@ -700,6 +729,13 @@ r = Rook(0, 0, 'rookW')
 rb = Rook(0, 7, 'rookB')
 r2 = Rook(7, 0, 'rookW')
 r2b = Rook(7, 7, 'rookB')
+# King(0, 0, "kingB")
+# King(3, 3, "kingW")
+# Rook(4, 3, "rookW")
+# Rook(5, 4, "rookW")
+# Rook(4, 0, "rookB")
+# Queen(7, 3, "queenB")
+# Queen(7, 0, "queenW")
 
 
 # aligning camera with board
