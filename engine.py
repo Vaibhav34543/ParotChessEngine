@@ -53,6 +53,9 @@ def CheckForCheck(king, pieceClass):
                 Log(f"\t\tCHECK FOUND: TRUE BY {[kingPos[0], kingPos[1] + i]}")
                 king.color = color.red
                 c = 1
+                break
+            else:
+                break
     for i in range(1, bottom):
         if CheckPosCollide([kingPos[0], kingPos[1] - i], kingClass):
             break
@@ -61,6 +64,9 @@ def CheckForCheck(king, pieceClass):
                 Log(f"\t\tCHECK FOUND: TRUE BY {[kingPos[0], kingPos[1] - i]}")
                 king.color = color.red
                 c = 1
+                break
+            else:
+                break
     for i in range(1, right):
         if CheckPosCollide([kingPos[0] + i, kingPos[1]], kingClass):
             break
@@ -69,6 +75,9 @@ def CheckForCheck(king, pieceClass):
                 Log(f"\t\tCHECK FOUND: TRUE by position {[kingPos[0]+i, kingPos[1]]}")
                 king.color = color.red
                 c = 1
+                break
+            else:
+                break
     for i in range(1, left):
         if CheckPosCollide([kingPos[0] - i, kingPos[1]], kingClass):
             break
@@ -77,6 +86,9 @@ def CheckForCheck(king, pieceClass):
                 Log(f"\t\tCHECK FOUND: TRUE by position {[kingPos[0]-i, kingPos[1]]}")
                 king.color = color.red
                 c = 1
+                break
+            else:
+                break
             
     # Diagnol Checks
     for i in range(1, min(top, right)):
@@ -87,6 +99,9 @@ def CheckForCheck(king, pieceClass):
                 Log(f"\t\tCHECK FOUND: TRUE by position {[kingPos[0]+i, kingPos[1]+i]}")
                 king.color = color.red
                 c = 1
+                break
+            else:
+                break
     for i in range(1, min(top, left)):
         if CheckPosCollide([kingPos[0] - i, kingPos[1] + i], kingClass):
             break
@@ -95,6 +110,9 @@ def CheckForCheck(king, pieceClass):
                 Log(f"\t\tCHECK FOUND: TRUE by position {[kingPos[0]+i, kingPos[1]+i]}")
                 king.color = color.red
                 c = 1
+                break
+            else:
+                break
     for i in range(1, min(bottom, left)):
         if CheckPosCollide([kingPos[0] - i, kingPos[1] - i], kingClass):
             break
@@ -103,6 +121,9 @@ def CheckForCheck(king, pieceClass):
                 Log(f"\t\tCHECK FOUND: TRUE by position {[kingPos[0]+i, kingPos[1]+i]}")
                 king.color = color.red
                 c = 1
+                break
+            else:
+                break
     for i in range(1, min(bottom, right)):
         if CheckPosCollide([kingPos[0] + i, kingPos[1] - i], kingClass):
             break
@@ -111,6 +132,9 @@ def CheckForCheck(king, pieceClass):
                 Log(f"\t\tCHECK FOUND: TRUE by position {[kingPos[0]+i, kingPos[1]+i]}")
                 king.color = color.red
                 c = 1
+                break
+            else:
+                break
     if c == 1:
         king.color = color.red
     else:
@@ -365,39 +389,48 @@ def captureBug(pos, pieceClass):
 def BishopManager(bishop, h_parent):
     Log(f"[BishopManager] CALLED TRUE BY {bishop.position}")
     # Checks how many pieces can diagonally be moved
+    currPos = [int(bishop.x), int(bishop.y)]
     right = int(8 - bishop.x)
     top = int(8 - bishop.y)
     left = int(bishop.x + 1)
     bottom = int(bishop.y + 1)
     for i in range(1, min(top, right)):
+        move = [bishop.x + i, bishop.y + i]
         if CheckPosCollide([bishop.x + i, bishop.y + i], returnClass(h_parent.parent))!=True:
-            Hover(i, i, h_parent)
-            if captureBug([bishop.x + i, bishop.y + i], returnClass(h_parent.parent)):
-                break
+            if CheckPinnedPieces(currPos, move, h_parent.parent) != True:
+                Hover(i, i, h_parent)
+                if captureBug([bishop.x + i, bishop.y + i], returnClass(h_parent.parent)):
+                    break
         # if checkOppCollisions([bishop.x + i, bishop.y + i], returnClass(h_parent)):
         #     Hover(i, i, h_parent)
         #     break
         else:
             break
     for i in range(1, min(top, left)):
+        move = [bishop.x - i, bishop.y + i]
         if CheckPosCollide([bishop.x - i, bishop.y + i], returnClass(h_parent.parent))!=True:
-            Hover(-i, i, h_parent)
-            if captureBug([bishop.x - i, bishop.y + i], returnClass(h_parent.parent)):
-                break
+            if CheckPinnedPieces(currPos, move, h_parent.parent) != True:
+                Hover(-i, i, h_parent)
+                if captureBug([bishop.x - i, bishop.y + i], returnClass(h_parent.parent)):
+                    break
         else:
             break
     for i in range(1, min(left, bottom)):
+        move = [bishop.x - i, bishop.y - i]
         if CheckPosCollide([bishop.x - i, bishop.y - i], returnClass(h_parent.parent))!=True:
-            Hover(-i, -i, h_parent)
-            if captureBug([bishop.x - i, bishop.y - i], returnClass(h_parent.parent)):
-                break
+            if CheckPinnedPieces(currPos, move, h_parent.parent) != True:
+                Hover(-i, -i, h_parent)
+                if captureBug([bishop.x - i, bishop.y - i], returnClass(h_parent.parent)):
+                    break
         else:
             break
     for i in range(1, min(bottom, right)):
+        move = [bishop.x + i, bishop.y - i]
         if CheckPosCollide([bishop.x + i, bishop.y - i], returnClass(h_parent.parent))!=True:
-            Hover(i, -i, h_parent)
-            if captureBug([bishop.x + i, bishop.y - i], returnClass(h_parent.parent)):
-                break
+            if CheckPinnedPieces(currPos, move, h_parent.parent) != True:
+                Hover(i, -i, h_parent)
+                if captureBug([bishop.x + i, bishop.y - i], returnClass(h_parent.parent)):
+                    break
         else:
             break
 
@@ -453,30 +486,39 @@ def KnightManager(knight, h_parent):
     # Kind of complicated but all it does is 
     # Checks for the L shaped positions if they are in board 
     # and then adds them to hovers
+    currPos = [knight.x, knight.y]
     if int(knight.y + 2) <= 7 and int(knight.x + 1) <= 7:
         if CheckPosCollide([knight.x+1, knight.y+2], returnClass(h_parent.parent)) != True:
-            Hover(1, 2, h_parent) 
+            if CheckPinnedPieces(currPos, [knight.x+1, knight.y+2], h_parent.parent) != True:
+                Hover(1, 2, h_parent) 
     if int(knight.y + 2) <= 7 and int(knight.x - 1) >= 0:
         if CheckPosCollide([knight.x -1, knight.y +2], returnClass(h_parent.parent)) != True:
-            Hover(-1, 2, h_parent) 
+            if CheckPinnedPieces(currPos, [knight.x-1, knight.y+2], h_parent.parent) != True:
+                Hover(-1, 2, h_parent) 
     if int(knight.y + 1) <= 7 and int(knight.x + 2) <= 7:
         if CheckPosCollide([knight.x +2, knight.y+1], returnClass(h_parent.parent)) != True:
-            Hover(2, 1, h_parent) 
+            if CheckPinnedPieces(currPos, [knight.x+2, knight.y+1], h_parent.parent) != True:
+                Hover(2, 1, h_parent) 
     if int(knight.y - 1) >= 0 and int(knight.x + 2) <= 7:
         if CheckPosCollide([knight.x+2, knight.y-1], returnClass(h_parent.parent)) != True:
-            Hover(2, -1, h_parent) 
+            if CheckPinnedPieces(currPos, [knight.x+2, knight.y-1], h_parent.parent) != True:
+                Hover(2, -1, h_parent) 
     if int(knight.y + 1) <= 7 and int(knight.x - 2) >= 0:
         if CheckPosCollide([knight.x-2, knight.y+1], returnClass(h_parent.parent)) != True:
-            Hover(-2, 1, h_parent) 
+            if CheckPinnedPieces(currPos, [knight.x-2, knight.y+1], h_parent.parent) != True:
+                Hover(-2, 1, h_parent) 
     if int(knight.y - 1) >= 0 and int(knight.x - 2) >= 0:
         if CheckPosCollide([knight.x-2, knight.y-1], returnClass(h_parent.parent)) != True:
-            Hover(-2, -1, h_parent) 
+            if CheckPinnedPieces(currPos, [knight.x-2, knight.y-1], h_parent.parent) != True:
+                Hover(-2, -1, h_parent) 
     if int(knight.y - 2) >= 0 and int(knight.x + 1) <= 7:
         if CheckPosCollide([knight.x+1, knight.y-2], returnClass(h_parent.parent)) != True:
-            Hover(1, -2, h_parent) 
+            if CheckPinnedPieces(currPos, [knight.x+1, knight.y-2], h_parent.parent) != True:
+                Hover(1, -2, h_parent) 
     if int(knight.y - 2) >= 0 and int(knight.x - 1) >= 0:
         if CheckPosCollide([knight.x-1, knight.y-2], returnClass(h_parent.parent)) != True:
-            Hover(-1, -2, h_parent)
+            if CheckPinnedPieces(currPos, [knight.x-1, knight.y-2], h_parent.parent) != True:
+                Hover(-1, -2, h_parent)
 
 # Handling King's hovers
 class King(Button):
@@ -621,19 +663,23 @@ def PawnCollisions(current_pos, pieceClass, h_parent):
     if pieceClass == "w":
         Log(f"\t CHECKING DIAGNOL COLLISIONS FOR {p} IN {Positions[1]}")
         if [p[0] + 1, p[1] + 1] in Positions[1]:
-            Log("\t\tFOUND DIAGNOL COLLISION: TRUE")
-            Hover(1, 1, h_parent)
+            if CheckPinnedPieces(current_pos, [p[0] + 1, p[1] + 1], h_parent.parent) != True:
+                Log("\t\tFOUND DIAGNOL COLLISION: TRUE")
+                Hover(1, 1, h_parent)
         if [p[0] - 1, p[1] + 1] in Positions[1]:
-            Log("\t\tFOUND DIAGNOL COLLISION: TRUE")
-            Hover(-1, 1, h_parent)
+            if CheckPinnedPieces(current_pos, [p[0] - 1, p[1] + 1], h_parent.parent) != True:
+                Log("\t\tFOUND DIAGNOL COLLISION: TRUE")
+                Hover(-1, 1, h_parent)
     else:
         Log(f"\t CHECKING DIAGNOL COLLISIONS FOR {p} IN {Positions[0]}")
-        if [p[0] + 1, p[1] - 1] in Positions[0]:
-            Log("\t\tFOUND DIAGNOL COLLISION: TRUE")
-            Hover(1, -1, h_parent)
-        if [p[0] - 1, p[1] - 1] in Positions[0]:
-            Log("\t\tFOUND DIAGNOL COLLISION: TRUE")
-            Hover(-1, -1, h_parent)
+        if [p[0] + 1, p[1] + 1] in Positions[0]:
+            if CheckPinnedPieces(current_pos, [p[0] + 1, p[1] + 1], h_parent.parent) != True:
+                Log("\t\tFOUND DIAGNOL COLLISION: TRUE")
+                Hover(1, 1, h_parent)
+        if [p[0] - 1, p[1] + 1] in Positions[0]:
+            if CheckPinnedPieces(current_pos, [p[0] - 1, p[1] + 1], h_parent.parent) != True:
+                Log("\t\tFOUND DIAGNOL COLLISION: TRUE")
+                Hover(-1, 1, h_parent)
 
 # Pawn Hovers
 class Pawn(Button):
@@ -729,6 +775,16 @@ r = Rook(0, 0, 'rookW')
 rb = Rook(0, 7, 'rookB')
 r2 = Rook(7, 0, 'rookW')
 r2b = Rook(7, 7, 'rookB')
+
+# Knight(3, 4, "knightW")
+
+# King(3, 3, "kingW")
+# King(0, 7, "kingB")
+# Knight(4, 4, "knightW")
+# Queen(7, 7, "queenB")
+# Pawn(0, 0, "pawnW")
+# Rook(2, 0, "rookB")
+
 # King(0, 0, "kingB")
 # King(3, 3, "kingW")
 # Rook(4, 3, "rookW")
